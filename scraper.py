@@ -7,36 +7,60 @@ Created on Tue Jun 30 16:40:06 2020
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import pandas as pd
+from urllib.error import HTTPError
+import time
+import random
 
-df = pd.DataFrame(columns=["url"])
-#https://zh-t.airbnb.com/s/Taipei-City/homes?tab_id=home_tab&refinement_paths%5B%5D=%2Fhomes&source=structured_search_input_header&search_type=pagination&place_id=ChIJi73bYWusQjQRgqQGXK260bw&federated_search_session_id=ae03436b-1c5d-417b-9a38-ee6ec4f21131&query=%E5%8F%B0%E5%8C%97%2C%20%E5%8F%B0%E7%81%A3%E5%9C%B0%E5%8D%80
-#https://zh-t.airbnb.com/s/Taipei-City/homes?tab_id=home_tab&refinement_paths%5B%5D=%2Fhomes&source=structured_search_input_header&search_type=pagination&place_id=ChIJi73bYWusQjQRgqQGXK260bw&federated_search_session_id=ae03436b-1c5d-417b-9a38-ee6ec4f21131&query=%E5%8F%B0%E5%8C%97%2C%20%E5%8F%B0%E7%81%A3%E5%9C%B0%E5%8D%80&section_offset=3&items_offset=20
-#https://zh-t.airbnb.com/s/Taipei-City/homes?tab_id=home_tab&refinement_paths%5B%5D=%2Fhomes&source=structured_search_input_header&search_type=pagination&place_id=ChIJi73bYWusQjQRgqQGXK260bw&federated_search_session_id=ae03436b-1c5d-417b-9a38-ee6ec4f21131&query=%E5%8F%B0%E5%8C%97%2C%20%E5%8F%B0%E7%81%A3%E5%9C%B0%E5%8D%80&section_offset=3&items_offset=40
-#https://www.airbnb.com/s/%E5%8F%B0%E5%8C%97%E5%B8%82/homes?tab_id=home_tab&refinement_paths%5B%5D=%2Fhomes&source=structured_search_input_header&search_type=pagination&place_id=ChIJi73bYWusQjQRgqQGXK260bw&federated_search_session_id=2ea7cf76-4445-45fa-8b69-007eb6d46a66&query=Taipei%2C%20Taiwan
-#https://www.airbnb.com/s/%E5%8F%B0%E5%8C%97%E5%B8%82/homes?tab_id=home_tab&refinement_paths%5B%5D=%2Fhomes&source=structured_search_input_header&search_type=pagination&place_id=ChIJi73bYWusQjQRgqQGXK260bw&federated_search_session_id=2ea7cf76-4445-45fa-8b69-007eb6d46a66&query=Taipei%2C%20Taiwan&section_offset=3&items_offset=20
-for page in range(0,5):
-    url = "https://www.airbnb.com/s/%E5%8F%B0%E5%8C%97%E5%B8%82/homes?tab_id=home_tab&refinement_paths%5B%5D=%2Fhomes&source=structured_search_input_header&search_type=pagination&place_id=ChIJi73bYWusQjQRgqQGXK260bw&federated_search_session_id=2ea7cf76-4445-45fa-8b69-007eb6d46a66&query=Taipei%2C%20Taiwan"
+df = pd.DataFrame(columns=["Name","Location","Type of room","Rating","Number of review","price","Amenities","Review","url"])
+#https://www.airbnb.com/s/New-York--NY--United-States/homes?tab_id=home_tab&refinement_paths%5B%5D=%2Fhomes&source=structured_search_input_header&search_type=pagination&query=New%20York%2C%20NY&place_id=ChIJOwg_06VPwokRYv534QaPC8g&federated_search_session_id=585eec54-b658-4b46-9a76-61d0ba4a0851&section_offset=1&items_offset=20
+for page in range(0,45):
+    url = "https://www.airbnb.com/s/New-York--NY--United-States/homes?tab_id=home_tab&refinement_paths%5B%5D=%2Fhomes&source=structured_search_input_header&search_type=pagination&query=New%20York%2C%20NY&place_id=ChIJOwg_06VPwokRYv534QaPC8g&federated_search_session_id=585eec54-b658-4b46-9a76-61d0ba4a0851"
     if page!=0:
         url=url+"&section_offset=3&items_offset="+str(page*20)
     # 解決 400 Error
     try:
         responds = urlopen(url)
     except HTTPError:
-        print("已完成，此為最後一頁!!")
+        print("finish!!")
         break
-    print("頁數:", page+1)
+    print("page:", page+1)
     # 分析盒子
     html = BeautifulSoup(responds)
     # 找盒子
     rlist = html.find_all("div", class_="_8ssblpx")
     for r in rlist:
-        list_url = r.find("a", class_="_gjfol0")
-        # 取紙條以及特徵
-        print(list_url["href"])
+        location = r.find("div", class_="_167qordg")
+        name = r.find("div", class_="_1c2n35az")
+        type_of_room = r.find("div", class_="_kqh46o")
+        rating = r.find("span", class_="_10fy1f8")
+        num_of_review = r.find("span", class_="_a7a5sx")
+        price = r.find("span", class_="_1p7iugi")
+        room_href = r.find("a", class_="_gjfol0")["href"]
+        room_url= "https://www.airbnb.com"+room_href
+        time.sleep(random.randint(1, 5))
+        room_responds = urlopen(room_url)
+        room_html = BeautifulSoup(room_responds)
+        amenities_list = room_html.find_all("div", class_="_19xnuo97")
+        review_list = room_html.find_all("div", class_="_eeq7h0")
+    
+        if amenities_list!= None:
+            amenities = ""
+            for a in range(len(amenities_list)):
+                amenities +=  amenities_list[a].text+", " 
+        
+        if review_list!= None:
+            review = ""
+            for r in range(len(review_list)):
+                review +=  review_list[r].text+"/ "
+            
+        print(name.text if name else "N/A", location.text if location else "N/A", type_of_room.text if type_of_room else "N/A", rating.text if rating else "N/A", num_of_review.text if num_of_review else "N/A", price.text if price else "N/A", amenities if amenities else "N/A", review if review else "N/A", room_href)
+        
+        
         # 建立資料序列
-        s = pd.Series([list_url["href"]],
-                  index=["url"])
+        s = pd.Series([name.text if name else "N/A", location.text if location else "N/A", type_of_room.text if type_of_room else "N/A", rating.text if rating else "N/A", num_of_review.text if num_of_review else "N/A", price.text if price else "N/A", amenities if amenities else "N/A", review if review else "N/A", room_href],
+                  index=["Name","Location","Type of room","Rating","Number of review","price","Amenities","Review","url"])
         df = df.append(s, ignore_index=True) # ignore_index= True 重新標號 不保留原本的標號
 
-df.to_csv("list_url.csv", encoding="utf-8", index=False) # index=False 不儲存標號之列表
+            
+df.to_csv("airbnb_list.csv", encoding="utf-8", index=False) # index=False 不儲存標號之列表
 
