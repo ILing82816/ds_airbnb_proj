@@ -13,7 +13,7 @@ import random
 
 df = pd.DataFrame(columns=["Name","Location","Type of room","Rating","Number of review","price","Amenities","Review","url"])
 #https://www.airbnb.com/s/New-York--NY--United-States/homes?tab_id=home_tab&refinement_paths%5B%5D=%2Fhomes&source=structured_search_input_header&search_type=pagination&query=New%20York%2C%20NY&place_id=ChIJOwg_06VPwokRYv534QaPC8g&federated_search_session_id=585eec54-b658-4b46-9a76-61d0ba4a0851&section_offset=1&items_offset=20
-for page in range(0,45):
+for page in range(0,15):
     url = "https://www.airbnb.com/s/New-York--NY--United-States/homes?tab_id=home_tab&refinement_paths%5B%5D=%2Fhomes&source=structured_search_input_header&search_type=pagination&query=New%20York%2C%20NY&place_id=ChIJOwg_06VPwokRYv534QaPC8g&federated_search_session_id=585eec54-b658-4b46-9a76-61d0ba4a0851"
     if page!=0:
         url=url+"&section_offset=3&items_offset="+str(page*20)
