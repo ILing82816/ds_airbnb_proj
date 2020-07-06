@@ -98,14 +98,10 @@ X_val = X_val.drop(['Location', 'Type_of_room'], axis =1)
 ## sklearn Linear Regression
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error
-from sklearn.model_selection import cross_val_score
-import numpy as np
 
 linear = LinearRegression()
 model_linear = linear.fit(X_train, y_train)
 print("Linear regression")
-print(np.mean(cross_val_score(model_linear,X_train,y_train, scoring = 'neg_mean_absolute_error', cv= 3)))
-print(np.mean(cross_val_score(model_linear,X_val,y_val, scoring = 'neg_mean_absolute_error', cv= 3)))
 
 y_train_pred = model_linear.predict(X_train)
 print(mean_absolute_error(y_train, y_train_pred))
@@ -118,8 +114,6 @@ from sklearn.ensemble import RandomForestRegressor
 rf = RandomForestRegressor()
 model_rf = rf.fit(X_train, y_train)
 print("Random Forest")
-print(np.mean(cross_val_score(rf,X_train,y_train,scoring = 'neg_mean_absolute_error', cv= 3)))
-print(np.mean(cross_val_score(rf,X_val,y_val,scoring = 'neg_mean_absolute_error', cv= 3)))
 
 y_train_pred = model_rf.predict(X_train)
 print(mean_absolute_error(y_train, y_train_pred))
@@ -128,10 +122,10 @@ print(mean_absolute_error(y_val, y_val_pred))
 
 #XGBoost 
 import xgboost as xgb
-dtrain = xgb.DMatrix(data = X_train, label = y_train)
-dval = xgb.DMatrix(data = X_val, label = y_val)
+xgb_train = xgb.DMatrix(data = X_train, label = y_train)
+xgb_val = xgb.DMatrix(data = X_val, label = y_val)
 
-param_r = {'booster' : 'gbtree'
+param_xgb = {'booster' : 'gbtree'
            #,'lambda' = ???
            #,'alpha' = ???
            ,'feature_selector' : 'cyclic' #also have 'shuffle', 'random', 'greedy', 'thrifty'
@@ -141,7 +135,63 @@ param_r = {'booster' : 'gbtree'
            , 'maximize' : 'FALSE'
         }
 
-watchlist = [(dtrain, 'train'), (dval, 'eval')]
+watchlist = [(xgb_train, 'train'), (xgb_val, 'eval')]
 num_round = 50 #This is another hyperparameter of sorts
-xgb_r = xgb.train(param_r, dtrain, num_round, watchlist, early_stopping_rounds = 10)
+xgb_model = xgb.train(param_xgb, xgb_train, num_round, watchlist, early_stopping_rounds = 10)
+
+train_preds = X_train.copy()
+train_preds['PRICE'] = y_train
+train_preds['price_pred_xgb'] = xgb_model.predict(xgb_train)
+
+val_preds = X_val.copy()
+val_preds['PRICE'] = y_val
+val_preds['price_pred_xgb'] = xgb_model.predict(xgb_val)
+
+
+print("XGBoost")
+print("Train MAE =", mean_absolute_error(train_preds['PRICE'], train_preds['price_pred_xgb'])
+    ,"Val MAE =", mean_absolute_error(val_preds['PRICE'], val_preds['price_pred_xgb']))
+
+
+
+#LightGBM
+import lightgbm as lgb
+lgb_train = lgb.Dataset(X_train, y_train)
+lgb_val = lgb.Dataset(X_val, y_val)
+
+lgb_params = {
+    'boosting_type': 'gbdt', # also have goss, and dart
+    'objective': 'regression',
+    'metric': 'mae', # also 'mean_absolute_error', 'mae', 'root_mean_squared_error'
+    #'max_depth' : 3,
+    #'num_leaves' : ???
+    #'learning_rate': 0.1,
+    #'num_threads' : -1,
+    #'scale_pos_weight' : ???
+    'early_stopping_round' : 10,
+}
+
+lgb_model = lgb.train(params = lgb_params, train_set = lgb_train,
+                num_boost_round = 50, valid_sets = [lgb_val, lgb_train],
+               valid_names = ['Evaluation', 'Train'])
+
+train_preds['price_pred_lgb'] = lgb_model.predict(X_train)
+
+val_preds['price_pred_lgb'] = lgb_model.predict(X_val)
+print("LightGBM")
+print("Train MAE =", mean_absolute_error(train_preds['PRICE'], train_preds['price_pred_lgb'])
+    ,"Val MAE =", mean_absolute_error(val_preds['PRICE'], val_preds['price_pred_lgb']))
+
+
+
+
+
+
+
+
+
+
+
+
+
 
