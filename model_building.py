@@ -109,6 +109,15 @@ print(mean_absolute_error(y_train, y_train_pred))
 y_val_pred = model_linear.predict(X_val)
 print(mean_absolute_error(y_val, y_val_pred))
 
+train_preds = X_train.copy()
+train_preds['PRICE'] = y_train
+train_preds['price_pred_linear'] = model_linear.predict(X_train)
+
+val_preds = X_val.copy()
+val_preds['PRICE'] = y_val
+val_preds['price_pred_linear'] = model_linear.predict(X_val)
+val_preds['ERROR_linear'] = val_preds['PRICE'] - val_preds['price_pred_linear']
+
 # random forest regressor
 from sklearn.ensemble import RandomForestRegressor
 rf = RandomForestRegressor()
@@ -119,6 +128,11 @@ y_train_pred = model_rf.predict(X_train)
 print(mean_absolute_error(y_train, y_train_pred))
 y_val_pred = model_rf.predict(X_val)
 print(mean_absolute_error(y_val, y_val_pred))
+
+train_preds['price_pred_Rf'] = model_rf.predict(X_train)
+val_preds['price_pred_Rf'] = model_rf.predict(X_val)
+val_preds['ERROR_Rf'] = val_preds['PRICE'] - val_preds['price_pred_Rf']
+
 
 #XGBoost 
 import xgboost as xgb
@@ -139,14 +153,10 @@ watchlist = [(xgb_train, 'train'), (xgb_val, 'eval')]
 num_round = 50 #This is another hyperparameter of sorts
 xgb_model = xgb.train(param_xgb, xgb_train, num_round, watchlist, early_stopping_rounds = 10)
 
-train_preds = X_train.copy()
-train_preds['PRICE'] = y_train
+
 train_preds['price_pred_xgb'] = xgb_model.predict(xgb_train)
-
-val_preds = X_val.copy()
-val_preds['PRICE'] = y_val
 val_preds['price_pred_xgb'] = xgb_model.predict(xgb_val)
-
+val_preds['ERROR_xgb'] = val_preds['PRICE'] - val_preds['price_pred_xgb']
 
 print("XGBoost")
 print("Train MAE =", mean_absolute_error(train_preds['PRICE'], train_preds['price_pred_xgb'])
@@ -198,8 +208,13 @@ with open(os.path.join(path_prefix, 'FlaskApI/airbnb_price_model.pckl'), 'wb') a
     pickle.dump(xgb_model, fout)
 
 X_val.to_csv("airbnb_list_val.csv", index=False)
+<<<<<<< HEAD
 xgb_test = xgb.DMatrix(X_val.iloc[:2])
 xgb_model.predict(xgb_test)
+=======
+val_preds.to_csv("airbnb_list_pred.csv", index=False)
+
+>>>>>>> figure
 
 
 
