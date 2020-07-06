@@ -183,6 +183,19 @@ print("Train MAE =", mean_absolute_error(train_preds['PRICE'], train_preds['pric
     ,"Val MAE =", mean_absolute_error(val_preds['PRICE'], val_preds['price_pred_lgb']))
 
 
+#model explanation
+import shap
+model_explainer = shap.TreeExplainer(xgb_model)
+shap_vals_train=model_explainer.shap_values(X_train)
+shap.summary_plot(shap_vals_train, X_train)
+shap_vals_test=model_explainer.shap_values(X_val)
+shap.summary_plot(shap_vals_test, X_val)
+
+
+# flask_API--store the best model
+import pickle
+with open(os.path.join(path_prefix, 'FlaskApI/airbnb_price_model.pckl'), 'wb') as fout:
+    pickle.dump(xgb_model, fout)
 
 
 
