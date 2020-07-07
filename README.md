@@ -49,12 +49,15 @@ I tried three different models:
 
 ## Model performance
 The XGBoost model far outperformed the other approaches on the test and validation sets.
-* **Prophet:** MAE = 14.56   
-![alt text](https://github.com/ILing82816/ds_oil_price_proj/blob/master/Figure/prediction_prophet.png "prophet")   
-* **Linear Regression:** MAE = 0.82  
-![alt text](https://github.com/ILing82816/ds_oil_price_proj/blob/master/Figure/prediction_linear.png "linear")  
-* **Long Short-term Memory (LSTM):** MAE = 1.08  
-![alt text](https://github.com/ILing82816/ds_oil_price_proj/blob/master/Figure/prediction_LSTM.png "LSTM")
+* **XGBoost:** MAE = 1.11   
+![alt text](https://github.com/ILing82816/ds_airbnb_proj/blob/master/Figure/XGBoost_model.png)   
+* **Linear Regression:** MAE = 9.86  
+![alt text](https://github.com/ILing82816/ds_airbnb_proj/blob/master/Figure/linear_model.png)  
+* **Random Forest:** MAE = 2.26  
+![alt text](https://github.com/ILing82816/ds_airbnb_proj/blob/master/Figure/Random_Forest_model.png)  
+
+Depand on the variable importance plot, we can see the "Location_cb" is the most important variable to impact the prediction. In the future, host or customer can choose different location to choose the hourse. Therefore, there are different rent of house.  
+![alt text](https://github.com/ILing82816/ds_airbnb_proj/blob/master/Figure/model_explanation.png)  
 
 ## Productionization
-In this step, I built a flask API endpoint that was hosted on a local webserver by following along with the tutorial in the reference section above. The API endpoint takes in a request with the day of prediction and returns a list of estimated WTI Price.
+In this step, I built a flask API endpoint that was hosted on a local webserver by following along with the tutorial in the reference section above. The API endpoint takes in a request with the information of house and returns a list of estimated rent of house.
