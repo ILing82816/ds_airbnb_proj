@@ -36,7 +36,7 @@ The pivot table of location and type of room:
 ![alt text](https://github.com/ILing82816/ds_airbnb_proj/blob/master/Figure/location_table.PNG)  
 Customer review sentiment:  
 ![alt text](https://github.com/ILing82816/ds_airbnb_proj/blob/master/Figure/review_sentiment_analysis.png)  
-Word Cloud of Customer review:
+Word Cloud of Customer review:  
 ![alt text](https://github.com/ILing82816/ds_airbnb_proj/blob/master/Figure/word_cloud.png)  
 
 ## Model Building
