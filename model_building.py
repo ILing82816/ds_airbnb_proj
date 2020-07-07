@@ -208,13 +208,13 @@ with open(os.path.join(path_prefix, 'FlaskApI/airbnb_price_model.pckl'), 'wb') a
     pickle.dump(xgb_model, fout)
 
 X_val.to_csv("airbnb_list_val.csv", index=False)
-<<<<<<< HEAD
+
 xgb_test = xgb.DMatrix(X_val.iloc[:2])
 xgb_model.predict(xgb_test)
-=======
+
 val_preds.to_csv("airbnb_list_pred.csv", index=False)
 
->>>>>>> figure
+
 
 
 
